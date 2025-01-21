@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
+import Movie from './Movie'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL, 
@@ -17,6 +18,7 @@ export default function App() {
     description: ''
   });
   const [message, setMessage] = useState('');
+  const [movies, setMovies] = useState([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -32,6 +34,25 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Filme aus der Datenbank abrufen
+  const fetchMovies = async () => {
+    if (session) {
+      const { data, error } = await supabase
+        .from('movie')
+        .select('*')
+        .order('release_date', { ascending: false });
+
+      if (error) {
+        console.error('Fehler beim Abrufen der Filme:', error);
+      } else {
+        setMovies(data);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, [session]);
 
   // Film hinzufügen
   const addNewMovie = async () => {
@@ -54,9 +75,11 @@ export default function App() {
         console.error('Fehler beim Hinzufügen des Films:', error);
         setMessage('Fehler beim Hinzufügen des Films: ' + error.message);
       } else {
+        // Wenn null zurückgegeben wird, behandeln wir das hier, es gibt keinen Fehler.
         console.log('Erfolgreich hinzugefügt:', data);
         setMessage('Film erfolgreich hinzugefügt!');
         setMovieData({ name: '', releaseDate: '', description: '' });
+        fetchMovies(); // Tabelle nach dem Hinzufügen aktualisieren
       }
     } catch (err) {
       console.error('Unerwarteter Fehler:', err);
@@ -78,7 +101,31 @@ export default function App() {
 
   return (
     <div className="logged-in-container">
-      <h1>Willkommen, {session.user.email}!</h1>
+      
+      <div className="movies-container">
+        <h2>Alle Filme</h2>
+        {movies.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Veröffentlichungsdatum</th>
+                <th>Beschreibung</th>
+                <th>Bewerten</th>
+                <th>Bearbeiten</th>
+                <th>Löschen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {movies.map((movie) => (
+                <Movie key={movie.id} movie={movie} />
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Keine Filme vorhanden.</p>
+        )}
+      </div>
 
       <div className="add-movie-container">
         <h2>Film hinzufügen</h2>
