@@ -11,6 +11,12 @@ const supabase = createClient(
 
 export default function App() {
   const [session, setSession] = useState(null)
+  const [movieData, setMovieData] = useState({
+    name: '',
+    releaseDate: '',
+    description: ''
+  });
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -27,6 +33,37 @@ export default function App() {
   }, [])
 
 
+  // Film hinzufügen
+  const addNewMovie = async () => {
+    if (!movieData.name || !movieData.releaseDate) {
+      setMessage('Bitte alle Felder ausfüllen!');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.from('movie').insert([
+        {
+          name: movieData.name,
+          release_date: movieData.releaseDate,
+          description: movieData.description,
+          creator_id: session.user.id,
+        },
+      ]);
+
+      if (error) {
+        console.error('Fehler beim Hinzufügen des Films:', error);
+        setMessage('Fehler beim Hinzufügen des Films: ' + error.message);
+      } else {
+        console.log('Erfolgreich hinzugefügt:', data);
+        setMessage('Film erfolgreich hinzugefügt!');
+        setMovieData({ name: '', releaseDate: '', description: '' });
+      }
+    } catch (err) {
+      console.error('Unerwarteter Fehler:', err);
+      setMessage('Ein unerwarteter Fehler ist aufgetreten.');
+    }
+  };
+
   if (!session) {
     return (
       <div className="auth-container">
@@ -42,6 +79,29 @@ export default function App() {
   return (
     <div className="logged-in-container">
       <h1>Willkommen, {session.user.email}!</h1>
+
+      <div className="add-movie-container">
+        <h2>Film hinzufügen</h2>
+        <input
+          type="text"
+          placeholder="Name des Films"
+          value={movieData.name}
+          onChange={(e) => setMovieData({ ...movieData, name: e.target.value })}
+        />
+        <input
+          type="date"
+          value={movieData.releaseDate}
+          onChange={(e) => setMovieData({ ...movieData, releaseDate: e.target.value })}
+        />
+        <textarea
+          placeholder="Beschreibung des Films"
+          value={movieData.description}
+          onChange={(e) => setMovieData({ ...movieData, description: e.target.value })}
+        />
+        <button onClick={addNewMovie}>Hinzufügen</button>
+        {message && <p>{message}</p>}
+      </div>
+
       <button
         onClick={async () => {
           const { error } = await supabase.auth.signOut()
