@@ -1,11 +1,9 @@
 import './index.css';
 import React, { useState } from 'react';
-import { supabase } from './supabaseclient'; 
 
 export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
   const [editableRating, setEditableRating] = useState(rating);
   const [isEditable, setIsEditable] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (e, field) => {
     setEditableRating({ ...editableRating, [field]: e.target.innerText });
@@ -13,6 +11,7 @@ export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
 
   const handleBlur = () => {
     onUpdate(rating.id, editableRating);
+    setIsEditable(false); // Verlassen des Bearbeitungsmodus nach dem Speichern
   };
 
   const handleEditClick = () => {
@@ -20,14 +19,16 @@ export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
   };
 
   const handleCancelClick = () => {
-    setEditableRating(rating);
-    setIsEditable(false);
+    setEditableRating(rating); // Änderungen verwerfen
+    setIsEditable(false); // Bearbeitungsmodus verlassen
   };
 
+  // Prüfen, ob der aktuelle Benutzer der Ersteller ist
   const isCreator = currentUserId === rating.creator_id;
 
   return (
     <tr className="rating-row">
+      {/* Bewertungsfeld */}
       <td
         contentEditable={isEditable}
         suppressContentEditableWarning
@@ -36,6 +37,8 @@ export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
       >
         {editableRating.rating}
       </td>
+
+      {/* Kommentarfeld */}
       <td
         contentEditable={isEditable}
         suppressContentEditableWarning
@@ -44,11 +47,8 @@ export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
       >
         {editableRating.comment}
       </td>
-      <td>
-        <button onClick={() => setIsModalOpen(true)} className="rating-button">
-          Bewertungen anzeigen
-        </button>
-      </td>
+
+      {/* Bearbeiten-/Abbrechen-Schaltflächen */}
       <td>
         {isCreator ? (
           isEditable ? (
@@ -60,6 +60,8 @@ export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
           <span>Nur der Ersteller kann bearbeiten</span>
         )}
       </td>
+
+      {/* Löschen-Schaltfläche */}
       <td>
         {isCreator ? (
           <button onClick={() => onDelete(rating.id)}>Löschen</button>
