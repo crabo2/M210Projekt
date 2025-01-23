@@ -1,18 +1,18 @@
 import './index.css';
 import React, { useState } from 'react';
-import Ratings from './Ratings';
+import { supabase } from './supabaseclient'; 
 
-export default function Movie({ movie, onDelete, onUpdate, currentUserId }) {
-  const [editableMovie, setEditableMovie] = useState(movie);
+export default function Rating({ rating, onDelete, onUpdate, currentUserId }) {
+  const [editableRating, setEditableRating] = useState(rating);
   const [isEditable, setIsEditable] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (e, field) => {
-    setEditableMovie({ ...editableMovie, [field]: e.target.innerText });
+    setEditableRating({ ...editableRating, [field]: e.target.innerText });
   };
 
   const handleBlur = () => {
-    onUpdate(movie.id, editableMovie);
+    onUpdate(rating.id, editableRating);
   };
 
   const handleEditClick = () => {
@@ -20,50 +20,34 @@ export default function Movie({ movie, onDelete, onUpdate, currentUserId }) {
   };
 
   const handleCancelClick = () => {
-    setEditableMovie(movie);
+    setEditableRating(rating);
     setIsEditable(false);
   };
 
-  const handleRatingSubmit = (movieId, rating) => {
-    console.log(`Film ID: ${movieId}, Bewertung: ${rating}`);
-  };
-
-  const isCreator = currentUserId === movie.creator_id;
+  const isCreator = currentUserId === rating.creator_id;
 
   return (
-    <tr className="movie-row">
+    <tr className="rating-row">
       <td
         contentEditable={isEditable}
         suppressContentEditableWarning
         onBlur={handleBlur}
-        onInput={(e) => handleChange(e, 'name')}
+        onInput={(e) => handleChange(e, 'rating')}
       >
-        {editableMovie.name}
+        {editableRating.rating}
       </td>
       <td
         contentEditable={isEditable}
         suppressContentEditableWarning
         onBlur={handleBlur}
-        onInput={(e) => handleChange(e, 'release_date')}
+        onInput={(e) => handleChange(e, 'comment')}
       >
-        {editableMovie.release_date}
-      </td>
-      <td
-        contentEditable={isEditable}
-        suppressContentEditableWarning
-        onBlur={handleBlur}
-        onInput={(e) => handleChange(e, 'description')}
-      >
-        {editableMovie.description}
+        {editableRating.comment}
       </td>
       <td>
         <button onClick={() => setIsModalOpen(true)} className="rating-button">
-          Bewertungen
+          Bewertungen anzeigen
         </button>
-        <Ratings
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
       </td>
       <td>
         {isCreator ? (
@@ -78,7 +62,7 @@ export default function Movie({ movie, onDelete, onUpdate, currentUserId }) {
       </td>
       <td>
         {isCreator ? (
-          <button onClick={() => onDelete(movie.id)}>Löschen</button>
+          <button onClick={() => onDelete(rating.id)}>Löschen</button>
         ) : (
           <span>Nur der Ersteller kann löschen</span>
         )}
