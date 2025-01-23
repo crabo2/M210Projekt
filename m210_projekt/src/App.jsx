@@ -1,14 +1,10 @@
+// App.jsx
 import './index.css'
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './supabaseclient' // externer Supabase-Client
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import Movie from './Movie'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL, 
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -17,7 +13,6 @@ export default function App() {
     releaseDate: '',
     description: ''
   });
-  const [message, setMessage] = useState('');
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
@@ -54,10 +49,48 @@ export default function App() {
     fetchMovies();
   }, [session]);
 
+  // Film anpassen
+  const updateMovie = async (movieId, updatedMovieData) => {
+    try {
+      const { data, error } = await supabase
+        .from('movie')
+        .update(updatedMovieData)
+        .match({ id: movieId });
+
+      if (error) {
+        console.error('Fehler beim Aktualisieren des Films:', error);
+      } else {
+        console.log('Film erfolgreich aktualisiert:', data);
+        fetchMovies(); // Tabelle nach dem Aktualisieren erneut abrufen
+      }
+    } catch (err) {
+      console.error('Unerwarteter Fehler:', err);
+    }
+  };
+
+  // Film löschen
+  const deleteMovie = async (movieId) => {
+    try {
+      const { data, error } = await supabase
+        .from('movie')
+        .delete()
+        .match({ id: movieId });
+
+      if (error) {
+        console.error('Fehler beim Löschen des Films:', error);
+      } else {
+        console.log('Erfolgreich gelöscht:', data);
+        fetchMovies(); // Tabelle nach dem Löschen erneut abrufen
+      }
+    } catch (err) {
+      console.error('Unerwarteter Fehler:', err);
+    }
+  };
+
   // Film hinzufügen
   const addNewMovie = async () => {
     if (!movieData.name || !movieData.releaseDate) {
-      setMessage('Bitte alle Felder ausfüllen!');
+      alert('Bitte alle Felder ausfüllen!');
       return;
     }
 
@@ -73,17 +106,13 @@ export default function App() {
 
       if (error) {
         console.error('Fehler beim Hinzufügen des Films:', error);
-        setMessage('Fehler beim Hinzufügen des Films: ' + error.message);
       } else {
-        // Wenn null zurückgegeben wird, behandeln wir das hier, es gibt keinen Fehler.
-        console.log('Erfolgreich hinzugefügt:', data);
-        setMessage('Film erfolgreich hinzugefügt!');
+        console.log('Film erfolgreich hinzugefügt:', data);
         setMovieData({ name: '', releaseDate: '', description: '' });
         fetchMovies(); // Tabelle nach dem Hinzufügen aktualisieren
       }
     } catch (err) {
       console.error('Unerwarteter Fehler:', err);
-      setMessage('Ein unerwarteter Fehler ist aufgetreten.');
     }
   };
 
@@ -101,7 +130,6 @@ export default function App() {
 
   return (
     <div className="logged-in-container">
-      
       <div className="movies-container">
         <h2>Alle Filme</h2>
         {movies.length > 0 ? (
@@ -111,14 +139,20 @@ export default function App() {
                 <th>Name</th>
                 <th>Veröffentlichungsdatum</th>
                 <th>Beschreibung</th>
-                <th>Bewerten</th>
+                <th>Alle Bewertungen</th>
                 <th>Bearbeiten</th>
                 <th>Löschen</th>
               </tr>
             </thead>
             <tbody>
               {movies.map((movie) => (
-                <Movie key={movie.id} movie={movie} />
+                <Movie
+                  key={movie.id}
+                  movie={movie}
+                  onDelete={deleteMovie}
+                  onUpdate={updateMovie}
+                  currentUserId={session.user.id} 
+                />
               ))}
             </tbody>
           </table>
@@ -146,7 +180,6 @@ export default function App() {
           onChange={(e) => setMovieData({ ...movieData, description: e.target.value })}
         />
         <button onClick={addNewMovie}>Hinzufügen</button>
-        {message && <p>{message}</p>}
       </div>
 
       <button
