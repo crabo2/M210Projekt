@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -18,12 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - run: cd m210_projekt
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - run: cd m210_projekt && npm ci
+    - run: cd m210_projekt && npm run build --if-present
+    - run: cd m210_projekt && npm test
