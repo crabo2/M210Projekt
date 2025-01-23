@@ -1,7 +1,6 @@
-// App.jsx
 import './index.css'
 import { useState, useEffect } from 'react'
-import { supabase } from './supabaseclient' // externer Supabase-Client
+import { supabase } from './supabaseclient'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import Movie from './Movie'
@@ -147,12 +146,13 @@ export default function App() {
             <tbody>
               {movies.map((movie) => (
                 <Movie
-                  key={movie.id}
-                  movie={movie}
-                  onDelete={deleteMovie}
-                  onUpdate={updateMovie}
-                  currentUserId={session.user.id} 
-                />
+                key={movie.id}
+                movie={movie}
+                onDelete={deleteMovie}
+                onUpdate={updateMovie}
+                currentUserId={session.user.id}
+                session={session}
+              />              
               ))}
             </tbody>
           </table>

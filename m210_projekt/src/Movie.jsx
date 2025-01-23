@@ -2,7 +2,7 @@ import './index.css';
 import React, { useState } from 'react';
 import Ratings from './Ratings';
 
-export default function Movie({ movie, onDelete, onUpdate, currentUserId }) {
+export default function Movie({ movie, onDelete, onUpdate, currentUserId, session }) {
   const [editableMovie, setEditableMovie] = useState(movie);
   const [isEditable, setIsEditable] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,6 +63,8 @@ export default function Movie({ movie, onDelete, onUpdate, currentUserId }) {
         <Ratings
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          movieId={movie.id}
+          userId={session?.user?.id}
         />
       </td>
       <td>
