@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    working-directory: m210_projekt # Setzt das Arbeitsverzeichnis für den Job
 
     strategy:
       matrix:
@@ -24,5 +23,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+      working-directory: m210_projekt
     - run: npm run build --if-present
+      working-directory: m210_projekt
     - run: npm test
+      working-directory: m210_projekt
