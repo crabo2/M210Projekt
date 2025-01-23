@@ -111,3 +111,61 @@ th {
 .logout-button:hover {
   background-color: #d83c3c;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content button {
+  margin-top: 10px;
+}
+
+.modal-content input {
+  margin-bottom: 10px;
+}
+
+
+
+
+
+
+
+
+
+.rating-button {
+  padding: 5px 10px; /* Größerer Button */
+  background-color: #0056b3; /* Blaue Hintergrundfarbe */
+  color: white; /* Weiße Schrift */
+  border: none; /* Kein Rand */
+  border-radius: 5px; /* Abgerundete Ecken */
+  cursor: pointer; /* Zeiger-Cursor beim Hover */
+  font-size: 16px; /* Größere Schrift */
+}
+
+.rating-button:hover {
+  background-color: darkblue; /* Dunkleres Blau beim Hover */
+}
